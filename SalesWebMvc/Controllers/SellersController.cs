@@ -7,6 +7,7 @@ using SalesWebMvc.Services;
 using SalesWebMvc.Models;
 using SalesWebMvc.Models.ViewModels;
 using SalesWebMvc.Services.Exceptions;
+using System.Diagnostics;
 
 namespace SalesWebMvc.Controllers
 {
@@ -44,14 +45,14 @@ namespace SalesWebMvc.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Id não pode ser nulo" });
             }
             else
             {
                 var obj = _sellerService.FindById(id.Value);
                 if (obj == null)
                 {
-                    return NotFound();
+                    return RedirectToAction(nameof(Error), new { message = "Id não encontrado" });
 
                 }
                 else
@@ -71,14 +72,14 @@ namespace SalesWebMvc.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Id não pode ser nulo" });
             }
             else
             {
                 var obj = _sellerService.FindById(id.Value);
                 if (obj == null)
                 {
-                    return NotFound();
+                    return RedirectToAction(nameof(Error), new { message = "Id não encontrado" });
 
                 }
                 else
@@ -91,12 +92,12 @@ namespace SalesWebMvc.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Id não pode ser nulo" });
             }
             var obj = _sellerService.FindById(id.Value);
             if (obj == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Id não encontrado" });
             }
             List<Department> departments = _departmentService.FindAll();
             SellerFormViewModel viewModel = new SellerFormViewModel { Seller = obj, Departments = departments };
@@ -108,21 +109,26 @@ namespace SalesWebMvc.Controllers
         {
             if (id != seller.Id)
             {
-                return BadRequest();
+                return RedirectToAction(nameof(Error), new { message = "Id não correspondente!" });
             }
             try
             {
                 _sellerService.Update(seller);
                 return RedirectToAction(nameof(Index));
-            }catch (NotFoundException)
+            }catch (ApplicationException e )
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = e.Message });
             }
-            catch (DbConcurrencyException)
-            {
-                return BadRequest();
-            }
-        }
 
+        }
+        public IActionResult Error(string message)
+        {
+            var viewModel = new ErrorViewModel
+            {
+                Message = message,
+                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier // Se o  Activity.Current?.Id for nulo vai pegar o valor HttpContext.TraceIdentifier por causa do operador ??
+            };
+            return View(viewModel);
+        }
     }
 }
