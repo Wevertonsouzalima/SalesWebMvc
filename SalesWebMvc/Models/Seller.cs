@@ -8,14 +8,20 @@ namespace SalesWebMvc.Models
     public class Seller
     {
         public int Id { get; set; }
+        [Required]//Define que o campo é obrigátorio
+        [StringLength(60, MinimumLength = 3, ErrorMessage ="{0} tamanho do campo deve estar entre {2} e {1}")]//A chave {0} se refere ao nome do atributo as demais numerações são as configurações anteriores
         public string Name { get; set; }
         [DataType(DataType.EmailAddress)]
+        [Required]//Define que o campo é obrigátorio
+        [EmailAddress(ErrorMessage ="Informe um e-mail válido")]
         public string Email { get; set; }
         [Display(Name="Data Nascimento")]
         [DataType(DataType.Date)]
+        [Required]//Define que o campo é obrigátorio
         public DateTime BirthDate { get; set; }
         [Display(Name = "Salário Base")]
         [DataType(DataType.Currency)]
+        [Required]//Define que o campo é obrigátorio
         public double BaseSalary { get; set; }
         public Department Department { get; set; }
         public int DepartmentId { get; set; }
