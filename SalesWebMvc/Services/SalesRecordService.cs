@@ -28,9 +28,28 @@ namespace SalesWebMvc.Services
                 result = result.Where(x => x.Date <= maxDate);
             }
             return await result
+                .Include(x => x.Seller)//Faz o join desse resultado dom a tabela seller (feito usando os conceitos do link)
+                .Include(x => x.Seller.Department)
+                .OrderByDescending(x => x.Date)
+                .ToListAsync();
+        }
+
+        public async Task<List<IGrouping<Department,SalesRecord>>> FindByDateGroupingAsync(DateTime? minDate, DateTime? maxDate)
+        {
+            var result = from obj in _context.SalesRecord select obj;
+            if (minDate.HasValue)
+            {
+                result = result.Where(x => x.Date >= minDate);
+            }
+            if (maxDate.HasValue)
+            {
+                result = result.Where(x => x.Date <= maxDate);
+            }
+            return await result
                 .Include(x => x.Seller)//Faz o join desse resultao dom a tabela seller (feito usando os conceitos do link)
                 .Include(x => x.Seller.Department)
                 .OrderByDescending(x => x.Date)
+                .GroupBy(x=> x.Seller.Department)//Quando se faz o group ele converte o tipo para Igroup
                 .ToListAsync();
         }
     }
